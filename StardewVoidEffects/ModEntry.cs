@@ -28,6 +28,7 @@ namespace StardewVoidEffects
         {
             if (!Context.IsWorldReady)
                 return;
+
             bool voidInInventory = Game1.player.items.Any(item => item?.Name.ToLower().Contains("void") ?? false); ;
 
             if (voidInInventory == true)
