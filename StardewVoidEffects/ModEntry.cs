@@ -111,6 +111,9 @@ namespace StardewVoidEffects
 
         private void SpaceEvents_ItemEaten(object sender, EventArgs args) {
 
+            if (!Context.IsWorldReady)
+                return;
+
             //this.Monitor.Log($"{Game1.player.Name} has eaten a {Game1.player.itemToEat.Name}");
             string foodJustEaten = Game1.player.itemToEat.Name;
 
@@ -137,7 +140,7 @@ namespace StardewVoidEffects
         private void TimeEvents_DayAdvance(object sender, EventArgs args) {
             if (hasEatenVoid) {
                 Random rnd = new Random();
-                int daysToPass = rnd.Next(1, 3);
+                int daysToPass = rnd.Next(1, 4);
                 Game1.dayOfMonth = (Game1.dayOfMonth + daysToPass);
                 hasEatenVoid = false;
             }
