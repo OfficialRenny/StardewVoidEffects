@@ -17,6 +17,7 @@ namespace StardewVoidEffects
     {
         bool hasEatenVoid;
         private ModConfig Config;
+        int fiveSecondTimer = 5;
 
 
         public override void Entry(IModHelper helper)
@@ -79,23 +80,28 @@ namespace StardewVoidEffects
 
         private void Void_Drain(object sender, EventArgs args)
         {
-            bool voidInInventory = Game1.player.items.Any(item => item?.Name.ToLower().Contains("void") ?? false); ;
+            bool voidInInventory = Game1.player.items.Any(item => item?.Name.ToLower().Contains("void") ?? false);
 
-            if (voidInInventory == true)
+            this.Config = this.Helper.ReadConfig<ModConfig>();
+
+            fiveSecondTimer--;
+            if (voidInInventory)
             {
-                int voidDecay = 5;
-                int decayedHealth = Game1.player.health - (voidDecay / 2);
-                float decayedStamina = Game1.player.stamina - voidDecay;
-                Game1.player.health = decayedHealth;
-                Game1.player.stamina = decayedStamina;
+                if (fiveSecondTimer <= 0)
+                {
+                    int voidDecay = Config.voidDecay;
+                    int decayedHealth = Game1.player.health - (voidDecay / 2);
+                    float decayedStamina = Game1.player.stamina - voidDecay;
+                    Game1.player.health = decayedHealth;
+                    Game1.player.stamina = decayedStamina;
+                    fiveSecondTimer = 5;
+                }
+                else
+                {
+                    return;
+                }
 
             }
-            else
-            {
-                return;
-            }
-            
-
 
         }
 
@@ -157,6 +163,8 @@ namespace StardewVoidEffects
     class ModConfig
     {
         public float VoidItemPriceIncrease { get; set; } = 2.0f;
+        public int voidDecay { get; set; } = 10;
+        
     }
 
 }
