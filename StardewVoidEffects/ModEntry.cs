@@ -12,6 +12,7 @@ namespace StardewVoidEffects
     {
         private bool hasEatenVoid;
         private bool isMenuOpen;
+        private bool modEnabled;
         private ModConfig Config;
         private int fiveSecondTimer = 5;
         private bool recentlyPassedOutInMP = false;
@@ -19,21 +20,42 @@ namespace StardewVoidEffects
 
         public override void Entry(IModHelper helper)
         {
+            this.Config = this.Helper.ReadConfig<ModConfig>();
+            if (Config.modEnabledOnStartup)
+            {
+                modEnabled = true;
+            }
+            else { modEnabled = false; }
             SpaceEvents.OnItemEaten += this.SpaceEvents_ItemEaten;
             TimeEvents.AfterDayStarted += this.TimeEvents_DayAdvance;
-            helper.ConsoleCommands.Add("void_tolerance", "Checks how many void items you have consumed.", this.Void_Tolerance);
             GameEvents.OneSecondTick += this.Void_Drain;
             MenuEvents.MenuChanged += this.drainMenu_Open;
             MenuEvents.MenuClosed += this.drainMenu_Closed;
+            helper.ConsoleCommands.Add("void_tolerance", "Checks how many void items you have consumed.", this.Void_Tolerance);
+            helper.ConsoleCommands.Add("togglevoid", "Turns the void effects on/off", this.Toggle_Mod);
+        }
+
+        private void Toggle_Mod(string command, string[] args)
+        {
+            modEnabled = !modEnabled;
+            if (modEnabled)
+            {
+                this.Monitor.Log("Void Effects toggled on.");
+            } else
+            {
+                this.Monitor.Log("Void Effects toggled off.");
+            }
         }
 
         private void drainMenu_Open(object sender, EventArgsClickableMenuChanged args)
         {
+            if (!modEnabled) { return; }
             isMenuOpen = true;
         }
 
         private void drainMenu_Closed(object sender, EventArgsClickableMenuClosed args)
         {
+            if (!modEnabled) { return; }
             isMenuOpen = false;
         }
 
@@ -56,7 +78,7 @@ namespace StardewVoidEffects
 
             if (asset.AssetNameEquals("Data/ObjectInformation"))
             {
-                if (isVoidRanchLoaded)
+                if (isVoidRanchLoaded && modEnabled)
                 {
                     IDictionary<int, string> data = asset.AsDictionary<int, string>().Data;
                     foreach (int id in validItems)
@@ -72,15 +94,18 @@ namespace StardewVoidEffects
                 }
                 else
                 {
-                    IDictionary<int, string> data = asset.AsDictionary<int, string>().Data;
-                    foreach (int id in validItemsVanilla)
+                    if (modEnabled)
                     {
-                        if (data.TryGetValue(id, out string entry))
+                        IDictionary<int, string> data = asset.AsDictionary<int, string>().Data;
+                        foreach (int id in validItemsVanilla)
                         {
-                            string[] fields = entry.Split('/');
-                            int currentPrice = int.Parse(fields[1]);
-                            fields[1] = (currentPrice * priceIncrease).ToString();
-                            data[id] = string.Join("/", fields);
+                            if (data.TryGetValue(id, out string entry))
+                            {
+                                string[] fields = entry.Split('/');
+                                int currentPrice = int.Parse(fields[1]);
+                                fields[1] = (currentPrice * priceIncrease).ToString();
+                                data[id] = string.Join("/", fields);
+                            }
                         }
                     }
                 }
@@ -89,6 +114,8 @@ namespace StardewVoidEffects
 
         private void Void_Drain(object sender, EventArgs args)
         {
+            if (!modEnabled) { return; }
+
             bool voidInInventory = Game1.player.items.Any(item => item?.Name.ToLower().Contains("void") ?? false);
 
             this.Config = this.Helper.ReadConfig<ModConfig>();
@@ -132,6 +159,8 @@ namespace StardewVoidEffects
 
         private void Void_Tolerance(string command, string[] args)
         {
+            if (!modEnabled) { return; }
+
             if (!Context.IsWorldReady)
                 return;
 
@@ -141,6 +170,8 @@ namespace StardewVoidEffects
 
         private void SpaceEvents_ItemEaten(object sender, EventArgs args)
         {
+            if (!modEnabled) { return; }
+
             if (!Context.IsWorldReady)
                 return;
 
@@ -170,6 +201,8 @@ namespace StardewVoidEffects
 
         private void Increase_Tolerance()
         {
+            if (!modEnabled) { return; }
+
             if (!Context.IsWorldReady)
                 return;
 
@@ -180,6 +213,8 @@ namespace StardewVoidEffects
 
         private void TimeEvents_DayAdvance(object sender, EventArgs args)
         {
+            if (!modEnabled) { return; }
+
             int noOfPlayers = Game1.getOnlineFarmers().Count<Farmer>();
             if (!Context.IsWorldReady)
             {
@@ -209,6 +244,7 @@ namespace StardewVoidEffects
 
     internal class ModConfig
     {
+        public bool modEnabledOnStartup { get; set; } = true;
         public float VoidItemPriceIncrease { get; set; } = 2.0f;
         public int VoidDecay { get; set; } = 10;
     }
