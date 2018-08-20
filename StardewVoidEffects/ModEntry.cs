@@ -96,7 +96,7 @@ namespace StardewVoidEffects
             if (recentlyPassedOutInMP == true && isMenuOpen == false)
             {
                 passedOutMPtimer--;
-                if(passedOutMPtimer <= 0)
+                if (passedOutMPtimer <= 0)
                 {
                     recentlyPassedOutInMP = false;
                     passedOutMPtimer = 60;
@@ -118,14 +118,8 @@ namespace StardewVoidEffects
                         int voidDecay = Config.VoidDecay;
                         int decayedHealth = Game1.player.health - (voidDecay / 2);
                         float decayedStamina = Game1.player.stamina - voidDecay;
-                        if(Game1.player.health > decayedHealth)
-                        {
-                            Game1.player.health = decayedHealth;
-                        }
-                        if (Game1.player.stamina > decayedStamina)
-                        {
-                            Game1.player.stamina = decayedStamina;
-                        }
+                        Game1.player.health = decayedHealth;
+                        Game1.player.stamina = decayedStamina;
                         fiveSecondTimer = 5;
                     }
                     else
@@ -159,7 +153,10 @@ namespace StardewVoidEffects
                 if (Context.IsMultiplayer)
                 {
                     Increase_Tolerance();
-                    Game1.player.stamina = 10;
+                    if (Game1.player.stamina > 10)
+                    {
+                        Game1.player.stamina = 10;
+                    }
                     hasEatenVoid = false;
                 }
                 else
@@ -197,23 +194,22 @@ namespace StardewVoidEffects
                 Game1.dayOfMonth = (Game1.dayOfMonth + daysToPass);
                 hasEatenVoid = false;
             }
-            else {
-                this.Monitor.Log($"There are currently {noOfPlayers} number of players in your game. \nIf you receive this and you're the only player, something went wrong.");
+            else
+            {
+                this.Monitor.Log($"There are currently {noOfPlayers} number of players in your game. \nIf you receive this and you're in singleplayer, something went wrong.");
                 hasEatenVoid = false;
             }
         }
     }
 
+    internal class SavedData
+    {
+        public int Tolerance { get; set; }
+    }
 
-
-internal class SavedData
-{
-    public int Tolerance { get; set; }
-}
-
-internal class ModConfig
-{
-    public float VoidItemPriceIncrease { get; set; } = 2.0f;
-    public int VoidDecay { get; set; } = 10;
-}
+    internal class ModConfig
+    {
+        public float VoidItemPriceIncrease { get; set; } = 2.0f;
+        public int VoidDecay { get; set; } = 10;
+    }
 }
