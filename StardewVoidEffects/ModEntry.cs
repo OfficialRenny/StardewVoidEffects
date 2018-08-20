@@ -16,8 +16,10 @@ namespace StardewVoidEffects
     public class ModEntry : Mod, IAssetEditor
     {
         bool hasEatenVoid;
+        bool isMenuOpen;
         private ModConfig Config;
         int fiveSecondTimer = 5;
+
 
 
         public override void Entry(IModHelper helper)
@@ -27,8 +29,20 @@ namespace StardewVoidEffects
             TimeEvents.AfterDayStarted += this.TimeEvents_DayAdvance;
             helper.ConsoleCommands.Add("void_tolerance", "Checks how many void items you have consumed.", this.Void_Tolerance);
             GameEvents.OneSecondTick += this.Void_Drain;
-            //GameEvents.FirstUpdateTick += this.Check_For_Mods;
+            MenuEvents.MenuChanged += this.drainMenu_Open;
+            MenuEvents.MenuClosed += this.drainMenu_Closed;
         }
+
+        private void drainMenu_Open(object sender, EventArgsClickableMenuChanged args)
+        {
+            isMenuOpen = true;
+        }
+
+        private void drainMenu_Closed(object sender, EventArgsClickableMenuClosed args)
+        {
+            isMenuOpen = false;
+        }
+
         public bool CanEdit<T>(IAssetInfo asset)
         {
             if (asset.AssetNameEquals("Data/ObjectInformation"))
@@ -83,26 +97,27 @@ namespace StardewVoidEffects
             bool voidInInventory = Game1.player.items.Any(item => item?.Name.ToLower().Contains("void") ?? false);
 
             this.Config = this.Helper.ReadConfig<ModConfig>();
-
-            fiveSecondTimer--;
-            if (voidInInventory)
+            if (isMenuOpen == false)
             {
-                if (fiveSecondTimer <= 0)
+                fiveSecondTimer--;
+                if (voidInInventory)
                 {
-                    int voidDecay = Config.voidDecay;
-                    int decayedHealth = Game1.player.health - (voidDecay / 2);
-                    float decayedStamina = Game1.player.stamina - voidDecay;
-                    Game1.player.health = decayedHealth;
-                    Game1.player.stamina = decayedStamina;
-                    fiveSecondTimer = 5;
-                }
-                else
-                {
-                    return;
-                }
+                    if (fiveSecondTimer <= 0)
+                    {
+                        int voidDecay = Config.VoidDecay;
+                        int decayedHealth = Game1.player.health - (voidDecay / 2);
+                        float decayedStamina = Game1.player.stamina - voidDecay;
+                        Game1.player.health = decayedHealth;
+                        Game1.player.stamina = decayedStamina;
+                        fiveSecondTimer = 5;
+                    }
+                    else
+                    {
+                        return;
+                    }
 
+                }
             }
-
         }
 
         private void Void_Tolerance(string command, string[] args)
@@ -163,7 +178,7 @@ namespace StardewVoidEffects
     class ModConfig
     {
         public float VoidItemPriceIncrease { get; set; } = 2.0f;
-        public int voidDecay { get; set; } = 10;
+        public int VoidDecay { get; set; } = 10;
         
     }
 
