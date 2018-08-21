@@ -39,7 +39,6 @@ namespace StardewVoidEffects
             helper.ConsoleCommands.Add("togglevoid", "Turns the void effects on/off", this.Toggle_Mod);
         }
 
-
         public bool CanEdit<T>(IAssetInfo asset)
         {
             if (asset.AssetNameEquals("Data/ObjectInformation"))
@@ -62,7 +61,6 @@ namespace StardewVoidEffects
             bool isVoidRanchLoaded = this.Helper.ModRegistry.IsLoaded("Taelende.VoidRanch");
             this.Config = this.Helper.ReadConfig<ModConfig>();
             float priceIncrease = this.Config.VoidItemPriceIncrease;
-
 
             if (asset.AssetNameEquals("Data/ObjectInformation"))
             {
@@ -103,15 +101,14 @@ namespace StardewVoidEffects
             {
                 asset.AsDictionary<string, string>().Data.Add("wizardsInfoOnVoid", "@,^I have been researching strange phenomenon relating to items of dark origin.^It seems to be that if you combine the forces of light and dark into a physical form, you can shield yourself from the aura that is emitted from said dark items!^Yes! I am talking about the Iridium Band!^Seek one of these out and please confirm that my hypothesis is correct.^ -M. Rasmodius, Wizard");
                 asset.AsDictionary<string, string>().Data.Add("wizardsIntroVoid", "Greetings young adept.^I have detected some kind of dark aura radiating off items of dark origin and it appears to be draining the willpower of my test subjects.^The item that I have tested this with is Void Essence however, I believe that all items of the same origin have the same effects.^Please stay away from these items until I have conducted more research.^ -M. Rasmodius, Wizard");
-
             }
         }
 
         public void Receive_Mail_From_Wizard(object sender, EventArgs args)
         {
-            if(Game1.player.mailReceived.Contains("wizardsIntroVoid") && Game1.player.mailReceived.Contains("wizardsInfoOnVoid"))
-            {
+            if (modEnabled && Game1.player.mailReceived.Contains("wizardsIntroVoid") && Game1.player.mailReceived.Contains("wizardsInfoOnVoid"))
                 return;
+            {
             }
 
             var savedData = this.Helper.ReadJsonFile<SavedData>($"data/{Constants.SaveFolderName}.json") ?? new SavedData();
@@ -121,17 +118,17 @@ namespace StardewVoidEffects
             SDate year2 = new SDate(day: 1, season: "spring", year: 2);
             SDate summerDay1Year1 = new SDate(season: "summer", day: 1, year: 1);
 
-            if (SDate.Now() > summerDay1Year1 && !Game1.player.mailReceived.Contains("wizardsIntroVoid"))
+            if (modEnabled && SDate.Now() > summerDay1Year1 && !Game1.player.mailReceived.Contains("wizardsIntroVoid"))
             {
                 Game1.mailbox.Add("wizardsIntroVoid");
             }
 
-            if (Game1.player.mailReceived.Contains("wizardsIntroVoid"))
+            if (modEnabled && Game1.player.mailReceived.Contains("wizardsIntroVoid"))
             {
                 daysSinceReceivingIntroLetter++;
             }
 
-            if (currentYear >= 2  && !Game1.player.mailReceived.Contains("wizardsInfoOnVoid") && Game1.player.mailReceived.Contains("wizardsIntroVoid") && daysSinceReceivingIntroLetter >= 7)
+            if (modEnabled && currentYear >= 2 && !Game1.player.mailReceived.Contains("wizardsInfoOnVoid") && Game1.player.mailReceived.Contains("wizardsIntroVoid") && daysSinceReceivingIntroLetter >= 7)
             {
                 Game1.mailbox.Add("wizardsInfoOnVoid");
             }
@@ -143,7 +140,8 @@ namespace StardewVoidEffects
             if (modEnabled)
             {
                 this.Monitor.Log("Void Effects toggled on.");
-            } else
+            }
+            else
             {
                 this.Monitor.Log("Void Effects toggled off.");
             }
@@ -153,7 +151,6 @@ namespace StardewVoidEffects
         {
             if (!modEnabled) { return; }
             isMenuOpen = true;
-            
         }
 
         private void drainMenu_Closed(object sender, EventArgsClickableMenuClosed args)
@@ -161,8 +158,6 @@ namespace StardewVoidEffects
             if (!modEnabled) { return; }
             isMenuOpen = false;
         }
-
-
 
         private void Void_Drain(object sender, EventArgs args)
         {
