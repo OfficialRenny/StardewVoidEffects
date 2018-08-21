@@ -31,7 +31,7 @@ namespace StardewVoidEffects
             GameEvents.OneSecondTick += this.Void_Drain;
             MenuEvents.MenuChanged += this.drainMenu_Open;
             MenuEvents.MenuClosed += this.drainMenu_Closed;
-            helper.ConsoleCommands.Add("void_tolerance", "Checks how many void items you have consumed.", this.Void_Tolerance);
+            helper.ConsoleCommands.Add("void_tolerance", "Checks how many void items you have consumed. (Currently Unused)", this.Void_Tolerance);
             helper.ConsoleCommands.Add("togglevoid", "Turns the void effects on/off", this.Toggle_Mod);
         }
 
@@ -117,6 +117,8 @@ namespace StardewVoidEffects
             if (!modEnabled) { return; }
 
             bool voidInInventory = Game1.player.items.Any(item => item?.Name.ToLower().Contains("void") ?? false);
+            bool isIridiumRingEquippedL = Game1.player.leftRing.Any(name => name?.Name.Equals("Iridium Band") ?? false);
+            bool isIridiumRingEquippedR = Game1.player.leftRing.Any(name => name?.Name.Equals("Iridium Band") ?? false);
 
             this.Config = this.Helper.ReadConfig<ModConfig>();
 
@@ -142,12 +144,15 @@ namespace StardewVoidEffects
                 {
                     if (fiveSecondTimer <= 0 && recentlyPassedOutInMP == false)
                     {
-                        int voidDecay = Config.VoidDecay;
-                        int decayedHealth = Game1.player.health - (voidDecay / 2);
-                        float decayedStamina = Game1.player.stamina - voidDecay;
-                        Game1.player.health = decayedHealth;
-                        Game1.player.stamina = decayedStamina;
-                        fiveSecondTimer = 5;
+                        if (isIridiumRingEquippedL == false || isIridiumRingEquippedR == false)
+                        {
+                            int voidDecay = Config.VoidDecay;
+                            int decayedHealth = Game1.player.health - (voidDecay / 2);
+                            float decayedStamina = Game1.player.stamina - voidDecay;
+                            Game1.player.health = decayedHealth;
+                            Game1.player.stamina = decayedStamina;
+                            fiveSecondTimer = 5;
+                        }
                     }
                     else
                     {
