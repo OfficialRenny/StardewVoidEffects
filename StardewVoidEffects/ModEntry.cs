@@ -1,11 +1,12 @@
-﻿using SpaceCore.Events;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using SpaceCore.Events;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using StardewVoidEffects.Framework;
 
 namespace StardewVoidEffects
 {
@@ -293,17 +294,5 @@ namespace StardewVoidEffects
                 hasEatenVoid = false;
             }
         }
-    }
-
-    internal class SavedData
-    {
-        public float Tolerance { get; set; }
-    }
-
-    internal class ModConfig
-    {
-        public bool modEnabledOnStartup { get; set; } = true;
-        public float VoidItemPriceIncrease { get; set; } = 2.0f;
-        public int VoidDecay { get; set; } = 10;
     }
 }
